@@ -1,0 +1,49 @@
+<%- include('../partials/sis_main_1.ejs')%>
+
+    <div class="page-header2 page-header2-default">
+        <div class="page-header2-content">
+            <div class="page-title">
+                <h4>Membros</h4>
+            </div>
+        </div>
+    </div>
+
+    <input type="hidden" id="projeto" value="<%= id %>">
+
+    <div class="form-group">
+        <label><span class="status-mark bg-danger"></span> Funcionários:</label>
+        <select name="funcionario" id="funcionario" class="select" onchange="AdicionarMembro(this.value)">
+            <option value="" selected>Selecione</option>
+            <% if(response.length > 0){ for (let i=0; i < response.length; i++) { %>                        
+                <option value="<%= response[i].id %>"><%= response[i].nome %></option>
+            <% }} %>
+        </select>
+    </div>
+
+    <table class="table mediaTable table-bordered table-striped table-hover bg-info-100" id="tblLista">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Nome</td>
+                <td>E-mail</td>                
+            </tr>
+        </thead>
+        <tbody>
+            <% if(responseMembros.length > 0){ for (let i=0; i < responseMembros.length; i++) { %>                        
+                <tr>          
+                    <td><%= responseMembros[i].id %></td>
+                    <td><%= responseMembros[i].nome %></td>
+                    <td><%= responseMembros[i].email %></td>
+                </tr>
+                <% }}else{ %>
+                    <tr>
+                        <td colspan="3">Nenhum membro encontrado</td>
+                      </tr>
+                <% } %>
+        </tbody>
+    </table>
+
+<script src="/assets/js/Views/requisicaoAjax.js"></script>
+<script src="/assets/js/Views/membros/AdicionarMembro.js"></script>
+<%- include('../partials/sis_main_2.ejs')%>
+<%- include('../partials/sis_herad.ejs') %>

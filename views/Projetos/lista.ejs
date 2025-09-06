@@ -1,0 +1,58 @@
+<%- include('../partials/sis_main_1.ejs')%>
+
+    <div class="page-header2 page-header2-default">
+        <div class="page-header2-content">
+            <div class="page-title">
+                <h4>Projetos</h4>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="text-right">
+        <input type="button"  value="ATUALIZAR" class="btn btn-default" onclick="javascript:window.location.reload()">                 
+        <input type="button"  value="ADICIONAR NOVO PROJETO" class="btn btn-primary" onclick="adicionarIframeModal('/projeto/novo')">                 
+    </div>
+    <p>&nbsp;</p>
+    <table class="table mediaTable table-bordered table-striped table-hover bg-info-100" id="tblLista">
+        <thead>
+            <tr>
+                <td>Id</td>
+                <td>Data Inicio</td>
+                <td>Data Real Término</td>
+                <td>Descrição</td>
+                <td>Nome</td>
+                <td>Orçamento Total</td>                
+                <td>Status Atual</td>
+                <td></td>                
+            </tr>
+        </thead>
+        <tbody>
+            <% if(response.length > 0){ for (let i=0; i < response.length; i++) { %>                        
+                <tr>          
+                    <td><%= response[i].id %></td>
+                    <td><%= response[i].data_inicio %></td>
+                    <td><%= response[i].data_real_termino %></td>
+                    <td><%= response[i].descricao %></td>
+                    <td><%= response[i].nome %></td>
+                    <td>R$ <%= response[i].orcamento_total %></td>
+                    <td><%= response[i].status_atual %></td>
+                    <td>
+                        <input type="button" value="MEMBROS" class="btn btn-default" onclick="adicionarIframeModal('/membros/<%= response[i].id %>')">
+                        <input type="button" value="EXCLUIR" class="btn btn-default" onclick="DeleteProjeto('<%= response[i].id %>')">
+                    </td>
+                </tr>
+                <% }}else{ %>
+                    <tr>
+                        <td colspan="8">Nenhum projeto encontrado</td>
+                      </tr>
+                <% } %>
+        </tbody>
+    </table>
+                
+<p>&nbsp;</p>
+
+<script src="/assets/js/Views/requisicaoAjax.js"></script>
+<script src="/assets/js/Views/projetos/ExcluiProjeto.js"></script>
+<%- include('../partials/sis_main_2.ejs')%>
+<%- include('../partials/sis_herad.ejs') %>

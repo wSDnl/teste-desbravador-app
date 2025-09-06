@@ -1,0 +1,1715 @@
+/*********************************************************************************/
+/* Titre: config.ref                                                             */
+/* Desc.: configuration de cft modèle                                            */
+/* Aut. : RENAULT/DOII/DTM/ESAT                                                  */
+/* Hist : (date)    (nom)     (objet)                                            */
+/*        11/12/97  OPSI(rtr) creation                                           */
+/*        10/08/98  OPSI(rtr) modif. *chkw et *pacing (12 et 128)                */
+/*                            changé dénomination fichiers accnt et log          */
+/*                            changé dénomination proc.cftaccnt et cftlog        */
+/*        04/11/98  OPSI(rtr) ajouté exit-annuaire et exit-list                  */
+/*        19/06/00  INSY(rtr) supprimé $CFTPART, $CFTCATA, $CFTCOM ...           */
+/*                            modifié l'exit list                                */
+/*                            remplacé PeSIT D profil CFT par PeSIT E (prof=any) */
+/*********************************************************************************/
+/*                                                                               */
+/*                CONFIGURATION DE CFTv232/WNT                                   */
+/*                                                                               */
+/*                SUR LE SERVEUR CASPAS01                                        */
+/*                                                                               */
+/*********************************************************************************/
+
+
+cftparm     id       = idparm0,
+/*          accnt    = idaccnt,               A DECOMMENTER si nécessaire */
+            cat      = idcat,
+            com      = idcom,
+            default  = iddef,
+            key      = 'JI6FAKZI6HP7SPG79XI6HALOTLN97JI6FAGW1S2E7',
+            log      = idlog,
+            maxtrans = 16,
+            net      = idtcp,
+            part     = CASPAS01,
+            partfnam = ..\fildat\cft_part,
+            prot     = (idprot,idprot1),
+	        execsf   = 'E:\LOGICIEL\CFT\FILUSR\sfGERAL.bat',
+	        execrf   = 'E:\LOGICIEL\CFT\FILUSR\rfGERAL.bat',
+            execse   = 'E:\EMVIA\SCRIPTS\err_snd.bat',
+            execre   = 'E:\EMVIA\SCRIPTS\err_recv.bat',
+            waitresp = 900
+
+cftaccnt    id       = idaccnt,
+            afname   = ..\fillog\cft_accb.txt,
+            exec     = ..\filusr\execacc.txt,
+            fname    = ..\fillog\cft_acca.txt,
+            language = c,
+            switch   = 2358
+
+cftcat      id       = idcat,
+            fname    = ..\fildat\cft_cata,
+            rh       = 10,
+            rt       = 2,
+            rx       = 2,
+            sh       = 10,
+            st       = 2,
+            sx       = 2,
+            wscan    = 1
+
+cftcom      id       = idcom,
+            name     = ..\fildat\cft_com,
+            type     = file,
+            wscan    = 5
+
+cftlog      id       = idlog,
+            afname   = ..\fillog\cft_logb.txt,
+            exec     = ..\filusr\execlog.txt,
+            fname    = ..\fillog\cft_loga.txt,
+            switch   = 2357
+
+/* protocole pour les echanges TCP-IP */
+cftprot     id       = idprot,
+            type     = pesit,
+            prof     = any,
+            concat   = yes,
+            discts   = 25,
+            multart  = yes,
+            net      = idtcp,
+            rchkw    = 1,
+            restart  = 5,
+            reverse  = yes,
+            rpacing  = 128,
+            rrusize  = 4096,
+            sap      = 3630,               
+            schkw    = 1,
+            segment  = yes,
+            spacing  = 128,
+            srusize  = 4096
+
+/* PROTOCOLE ODETTE  - TCP */
+cftprot     id       = idprot1,
+            disctd   = 300,
+            discts   = 300,
+            net      = idtcp,
+            rcomp    = 1,
+            rcredit  = 4,
+            resync   = no,
+            rrusize  = 2048,
+            rto      = 900,
+            sap      = 3631,  /* era 3 */
+            scomp    = 1,
+            scredit  = 4,
+            srusize  = 2048,
+            type     = odette
+
+/* Description ressource reseau TCP-IP */
+cftnet      id       = idtcp,
+            buflen   = 4096,
+            host     = '138.21.138.134',           /* A DEFINIR nom logique de la machine */
+            maxcnx   = 16,
+	    call     = inout,
+            type     = tcp
+
+/************************************************/
+/*      Definition de l'exit annuaire           */
+/*                                              */
+/* RAPPEL: exita  (cftprot) = exitann           */
+/*         nspart (cftpart) = <val> ou * ou **  */
+/*         nspassw(cftpart) = <val> ou * ou **  */
+/************************************************/
+cftexit     id       = exitann,
+            language = c,
+            prog     = cftexpwd,
+            reserv   = 1024,
+            type     = access
+
+
+/************************************************/
+/*          Definition de l'exit list           */
+/*                                              */
+/* RAPPEL: exit(cftsend) = id(cftexit)          */
+/*         ftype=t dans le recv est obligatoire */
+/************************************************/
+cftexit     id       = exitlst0,
+            language = c,
+            parm     = ..\filusr\exitlst0.cfg,
+            prog     = cftexl,
+            reserv   = 8192,
+            type     = file,
+            waittask = 15
+
+cftsend     id       = idexitl0,
+            exit     = exitlst0,
+            ftype    = t,
+            impl     = yes
+
+/************************************************/
+/*                                              */
+/*       Definition des modeles de transfert    */
+/*                                              */
+/************************************************/
+
+/* IDFs par defaut  */
+cftsend     id       = iddef
+
+cftrecv     id       = iddef,
+            fname    = ..\filpub\&part.&idf.&idt
+
+/* IDFs de test */
+cftsend     id       = idtst,
+            ftype    = t,
+            fname    = ..\filpub\ftest.txt
+
+cftrecv     id       = idtst,
+            fname    = ..\filpub\&part.&idf.&idt
+
+
+
+/* IDF TEXTE NT/mvs */
+cftsend     id       = idmvst,
+            fname    = ..\filpub\XXXXXXXX,
+            ftype    = t,
+            nlrecl   = 99,                   /* A AJUSTER (512 PAR DEFAUT)  */                        
+            nrecfm   = f                     /* A AJUSTER (v)ariable/(f)ixe */
+
+cftrecv     id       = idmvst,
+            fname    = ..\filpub\XXXXXXXX.&idtu,
+            ftype    = t,
+            wfname   = ..\filpub\&idtu
+
+/* IDF BINAIRE NT/mvs */
+cftsend     id       = idmvsb,
+            ftype    = b,
+            fname    = ..\filpub\XXXXXXXX
+
+cftrecv     id       = idmvsb,
+            fname    = ..\filpub\XXXXXXXX.&idtu,
+            wfname   = ..\filpub\&idtu
+
+
+
+
+/* IDF TEXTE NT/os400 */
+cftsend     id       = idos400t,
+            fname    = ..\filpub\XXXXXXXX,
+            ftype    = t,
+            nlrecl   = 99,                   /* A AJUSTER (512 PAR DEFAUT) */                        
+            nspace   = 65535,
+            ntype    = e
+
+cftrecv     id       = idos400t,
+            fname    = ..\filpub\XXXXXXXX.&idtu,
+            ftype    = t,
+            wfname   = ..\filpub\&idtu
+
+
+/* IDF BINAIRE NT/os400 */
+cftsend     id       = idos400b,
+            ftype    = b,
+            fname    = ..\filpub\XXXXXXXX
+
+cftrecv     id       = idos400b,
+            fname    = ..\filpub\XXXXXXXX.&idtu,
+            wfname   = ..\filpub\&idtu
+
+
+
+
+/* IDF TEXTE NT/tandem */
+cftsend     id       = idguardt,
+            ftype    = t,
+            fname    = ..\filpub\XXXXXXXX
+
+cftrecv     id       = idguardt,
+            fname    = ..\filpub\XXXXXXXX.&idtu,
+            ftype    = t,
+            wfname   = ..\filpub\&idtu
+
+
+/* IDF BINAIRE NT/tandem */
+cftsend     id       = idguardb,
+            ftype    = b,
+            fname    = ..\filpub\XXXXXXXX
+
+cftrecv     id       = idguardb,
+            fname    = ..\filpub\XXXXXXXX.&idtu,
+            wfname   = ..\filpub\&idtu
+
+
+/* IDF TEXTE NT/unix */
+cftsend     id       = idunixt,
+            ftype    = t,
+            fname    = ..\filpub\XXXXXXXX
+
+cftrecv     id       = idunixt,
+            ftype    = t,
+            fname    = ..\filpub\XXXXXXXX.&idtu,
+            wfname   = ..\filpub\&idtu
+
+/* IDF BINAIRE NT/unix */
+cftsend     id       = idunixb,
+            ftype    = b,
+            fname    = ..\filpub\XXXXXXXX
+
+cftrecv     id       = idunixb,
+            fname    = ..\filpub\XXXXXXXX.&idtu,
+            wfname   = ..\filpub\&idtu
+
+/* Partenaire pour boucler sur soi-meme */
+
+cftpart     id       = boucltcp,
+            commut   = no,
+            nrpart   = boucltcp,
+            nspart   = boucltcp,
+            prot     = idprot,
+            sap      = 3630
+
+cfttcp      id       = boucltcp,
+            cnxin    = 1,
+            cnxinout = 2,
+            cnxout   = 1,
+            host     = '138.21.138.134',
+            retrym   = 6,
+            retryn   = 2,
+            retryw   = 3
+
+/*-----------------------------------------------------------------*/
+
+/* PARTENAIRE AS4IGAR - MAQUINA AS/400 NA ARGENTINA                        */
+CFTPART  ID       = AS4IGAR,
+         COMMUT   = NO,
+         NRPART   = AS4IGAR,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = OS400
+
+CFTTCP   ID       = AS4IGAR,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = 'INFOCAR',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENAIRE USIBRS00 - MAQUINA DRACO                                     */
+CFTPART  ID       = USIBRS00,
+         COMMUT   = NO,
+         NRPART   = USIBRS00,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = UNIX
+
+CFTTCP   ID       = USIBRS00,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = 'draco.renault.br',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+         
+/* *********************************************************************** */
+/* PARTENAIRE USIBRS02 - MAQUINA P02RDB00                                  */
+CFTPART  ID       = USIBRS02,
+         COMMUT   = NO,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = UNIX
+
+CFTTCP   ID       = USIBRS02,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = 'SAPDB00.RENAULT.BR',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARCEIRO NTXBRE027                                                      */
+CFTPART  ID       = USIBRS24,
+         COMMUT   = NO,
+         NRPART   = USIBRS24,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = WINNT
+
+CFTTCP   ID       = USIBRS24,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = '172.26.44.245',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENAIRE DW COMERCIAL - NTXBRE022                                     */
+CFTPART  ID       = USIBRS22,
+         COMMUT   = NO,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         NRPART   = USIBRS22,
+         SYST     = WINNT
+
+CFTTCP   ID       = USIBRS22,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = '138.21.138.149',
+         RETRYM   = 21,
+         RETRYN   = 8,
+         RETRYW   = 1
+
+/* *********************************************************************** */
+/* PARCEIROS DO RENAULTNET DE PRODUCAO                                     */
+CFTPART  ID       = TDFHUB01,
+         PROT     = IDPROT,
+         SAP      = 50522,
+         NSPART   = CASPAS01,
+         NRPART   = TDFHUB01,
+         COMMUT   = YES,
+         SYST     = UNIX,
+         MODE     = REPLACE
+
+CFTTCP   ID       = TDFHUB01,
+         HOST     = '10.210.41.11',
+         CNXINOUT = 3,
+         CNXIN    = 2,
+         CNXOUT   = 2,
+         RETRYM   = 4,
+         RETRYN   = 2,
+         RETRYW   = 2
+
+/* *********************************************************************** */
+/* PARCEIRO RBRSUN01                                                       */
+CFTPART  ID       = RBRSUN01,
+         PROT     = IDPROT,
+         NSPART   = USIBRS65,
+         NRPART   = RBRSUN01,
+         IPART    = TDFHUB01,
+         COMMUT   = YES,
+         OMINTIME = 0,
+         OMAXTIME = 0,
+         SYST     = UNIX,
+         MODE     = REPLACE
+
+/* *********************************************************************** */
+/* PARTENAIRE CIADEA0 - MVS ARGENTINA                                      */
+CFTPART  ID       = CIADEA0,
+         COMMUT   = NO,
+         NRPART   = CIADEA0,
+         PROT     = IDPROT,
+         SAP      = 6535,
+         SYST     = MVS
+
+CFTTCP   ID       = CIADEA0,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = '172.25.253.134',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENAIRE USIBRS17 - MAQUINA SHREK                                     */
+CFTPART  ID       = USIBRS17,
+         COMMUT   = NO,
+         NRPART   = USIBRS17,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = UNIX
+
+CFTTCP   ID       = USIBRS17,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = 'SHREK',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENAIRE RNZITA01                                                     */
+CFTPART  ID       = RNZITA01,
+         COMMUT   = SERVER,
+         NRPART   = RNZITA01,
+         PROT     = IDPROT,
+         MODE     = REPLACE,
+         SAP      = 50584,
+         SYST     = UNIX
+
+CFTTCP   ID       = RNZITA01,
+         CNXIN    = 2,
+         CNXINOUT = 3,
+         CNXOUT   = 2,
+         HOST     = 'SU418AOS.MC2.RENAULT.FR',
+         RETRYM   = 4,
+         RETRYN   = 2,
+         RETRYW   = 2
+
+/* *********************************************************************** */
+/* PARTNER EMVIA/RENAULT - CONTINGÊNCIA                                    */
+CFTPART  ID       = EMVIA,
+         COMMUT   = NO,
+         NRPART   = O0055EMVIAOFTP1,
+         NRPASSW  = O169R111,
+         NSPART   = ORENAULT,
+         NSPASSW  = RDBA,
+         PROT     = IDPROT1,
+         SAP      = 6001
+
+CFTTCP   ID       = EMVIA,
+         HOST     = '10.216.9.237',
+         CNXIN    = 3,
+         CNXOUT   = 3,
+         CNXINOUT = 3,
+         MODE     = REPLACE
+
+/* *********************************************************************** */
+/* PARTNER DIACMLV                                                         */
+CFTPART  ID     = DIACMLV,
+         PROT   = IDPROT_0,
+         SAP    = 1761,
+         MODE   = REPLACE,
+         NSPART = USIBRS02,
+         NRPART = DIACMLV,
+         SYST   = MVS
+
+CFTTCP   ID       = DIACMLV,
+         HOST     = '172.23.2.1',
+/*       HOST     = 'SY1.MC2.GROUPERCI.COM', */
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         MODE     = REPLACE
+
+/* *********************************************************************** */
+/* PARTENAIRE RVCA001 - VENEZUELA                                          */
+CFTPART  ID       = RVCA001,
+         COMMUT   = NO,
+         NRPART   = RVCA001,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = WINNT
+
+CFTTCP   ID       = RVCA001,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = '138.21.189.137',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENAIRE USIBRS31 - MAQUINA BARNEY                                    */
+CFTPART  ID       = USIBRS31,
+         COMMUT   = NO,
+         NRPART   = USIBRS31,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = UNIX
+
+CFTTCP   ID       = USIBRS31,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = 'BARNEY',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENAIRE NMLCFT01 - NISSAN - JAPAO VIA COMUTACAO NA FRANCA            */
+CFTPART  ID       = NMLCFT01,
+         PROT     = IDPROT_0,
+         OMINTIME = 0,
+         OMAXTIME = 0,
+         IPART    = NISOPE01,
+         SYST     = UNIX,
+         COMMUT   = 'YES',
+         COMMENT  = 'NEW NISSAN MOTOR JAPAN OPER',
+         MODE     = 'REPLACE'
+
+CFTPART  ID       = NISOPE01,
+         PROT     = IDPROT_0,
+         SAP      = 1761,
+         COMMUT   = 'YES',
+         NSPART   = USIBRS28,
+         NRPART   = NISOPE01,
+         SYST     = MVS,
+         MODE     = 'REPLACE'
+
+cfttcp   id       = NISOPE01,
+         cnxin    = 2,
+         cnxinout = 3,
+         cnxout   = 2,
+         host     = 'nisope01.mc2.renault.fr',
+         retrym   = 10,
+         retryn   = 4,
+         retryw   = 5
+
+/* *********************************************************************** */
+/* PARTENAIRE APV ( MPR88 )                                                */
+CFTPART  ID       = PDJAPV0,
+         COMMUT   = NO,
+         PROT     = IDPROT_0,
+         SAP      = 1761,
+         NSPART   = USIBRS02,
+         NRPART   = PDJAPV0,
+         SYST     = MVS
+
+CFTTCP   ID       = PDJAPV0,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = '192.168.18.33',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENAIRE RMEX01- MEXICO                                               */
+CFTPART  ID       = RMEX01,
+         COMMUT   = NO,
+         NRPART   = RMEX01,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = WINNT
+
+CFTTCP   ID       = RMEX01,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = '138.21.53.42',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENAIRE USIARG11- ARGENTINA                                          */
+CFTPART  ID       = USIARG11,
+         COMMUT   = NO,
+         NRPART   = USIARG11,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = WINNT
+
+CFTTCP   ID       = USIARG11,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = '10.216.16.211',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENEIRE SANTANDER - APENAS PARA ARQUIVOS DO BO                       */
+CFTPART  ID       = STANDERB,
+         COMMUT   = NO,
+/*       NRPART   = O0055ABNAMRO01,  */
+/*       NRPASSW  = RENAULT1,        */
+         NRPART   = AB71MVSP,
+         NSPART   = ORENAULT,  
+         NSPASSW  = RENAULT1,
+         PROT     = IDPROT,
+/*       SAP      = 3631,            */
+         SAP      = 3630,
+         SYST     = MVS
+
+CFTTCP   ID       = STANDERB,
+         HOST     = '172.25.121.53',
+         CNXIN    = 1,
+         CNXOUT   = 2,
+         CNXINOUT = 1,
+         MODE     = REPLACE
+
+CFTPART  ID       = STANDERA,
+         COMMUT   = NO,
+         PROT     = IDPROT,
+         NRPART   = BSBRCL06,
+         NSPART   = ORENAULT,  
+         NSPASSW  = RENAULT1,
+         SAP      = 6330,
+         SYST     = UNIX
+
+CFTTCP   ID       = STANDERA,
+         HOST     = '10.251.8.225',
+         /* antigo HOST     = '172.25.121.49', */
+         CNXIN    = 1,
+         CNXOUT   = 2,
+         CNXINOUT = 1,
+         MODE     = REPLACE
+
+/* *********************************************************************** */
+/* PARTENAIRE USIBRS28 - MAQUINA BRPLV028                                  */
+CFTPART  ID       = USIBRS28,
+         COMMUT   = NO,
+         NRPART   = USIBRS28,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = UNIX
+
+CFTTCP   ID       = USIBRS28,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = 'BRPLV028.RENAULT.BR',
+         RETRYM   = 6,
+         RETRYN   = 2,
+         RETRYW   = 3
+
+/* *********************************************************************** */
+/* PARTENAIRE USIBRS65 - MAQUINA NTXBRE065                                 */
+CFTPART  ID       = USIBRS65,
+         COMMUT   = NO,
+         NRPART   = USIBRS65,
+         PROT     = IDPROT,
+         SAP      = 1761,
+         SYST     = WINNT
+
+CFTTCP   ID       = USIBRS65,
+         CNXIN    = 1,
+         CNXINOUT = 2,
+         CNXOUT   = 1,
+         HOST     = 'NTXBRE065.RENAULT.BR',
+         RETRYM   = 21,
+         RETRYN   = 8,
+         RETRYW   = 1
+
+/* *********************************************************************** */
+/* GRUPO GRP001 - PARCEIROS: USIBRS02 e USIBRS028                          */
+CFTDEST     id       = GRP001,
+            part     = (USIBRS28,USIBRS02)
+		 
+/* *********************************************************************** */
+/* *********************************************************************** */
+/* *********************************************************************** */
+/* *********************************************************************** */
+/* *********************************************************************** */
+/* *********************************************************************** */
+
+/* *********************************************************************** */
+/* ***          DEFINICAO DE TRANSFERENCIAS DE ARQUIVOS                    */
+/* *********************************************************************** */
+
+
+/* *********************************************************************** */
+/* C-PROCEJT 53545 - PROJETO FIDC                                          */
+CFTSEND  ID       = INT01SAP,
+         FCODE    = ASCII,
+         FACTION  = DELETE,
+         FLRECL   = 140,
+         FRECFM   = F,
+         FTYPE    = T
+
+/* *********************************************************************** */
+/* C-PROCEJT 53581 - PROJETO FIDC                                          */
+CFTSEND  ID       = INT02SAP,
+         FCODE    = ASCII,
+         FACTION  = DELETE,
+         FLRECL   = 250,
+         FRECFM   = F,
+         FTYPE    = T
+
+/* *********************************************************************** */
+/* C-PROCEJT 53582 - PROJETO FIDC                                          */
+CFTRECV  ID       = SAP01INT,
+         FNAME    = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FACTION  = DELETE,
+         FLRECL   = 250,
+         FRECFM   = F,
+         FTYPE    = T,
+         EXEC     = E:\LOGICIEL\CFT\SCRIPTS\RFSAP01INT.BAT
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBCANNF,
+         FLRECL  = 60,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMBLOQ,
+         FLRECL  = 163,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+		 EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMBONU,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMBCOM,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMCOMP, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMCONC,
+         FLRECL  = 51,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMCOND,
+         FLRECL  = 539, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMCTMA,
+         FLRECL  = 238,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMEMPR,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMFATN,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMFATR,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMFORP,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+         
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMMODE,
+         FLRECL  = 54, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMMONT,
+         FLRECL  = 12, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMOCOR,
+         FLRECL  = 45,        
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMOPCI,
+         FLRECL  = 48, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMRELC,          
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMVEIC,
+         FLRECL  = 900,  
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMVERS,
+         FLRECL  = 61, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFGERAL_INTEGRAL.BAT',
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = BOBMVIST,
+         FLRECL  = 74,  
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CDC,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = ADP,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T,
+         EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFADP.BAT'
+
+/* *********************************************************************** */
+CFTRECV  ID      = BEMLSG,
+         FLRECL  = 250, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = COBFIN,
+         FLRECL  = 283,         
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = COBLSG,
+         FLRECL  = 283,  
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CONLSG,
+         FLRECL  = 2670, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CTLSG,
+         FLRECL  = 629, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CTFIN,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CTLSGMES,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = FILIAIS,
+         FLRECL  = 141, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+ 
+/* *********************************************************************** */
+CFTRECV  ID      = FINBEM,
+         FLRECL  = 250, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT.TXT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = FINCLIEN,
+         FLRECL  = 701, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = FINCON,
+         FLRECL  = 1181,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CONTRATO,
+         FLRECL  = 609, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = FINPAR,
+         FLRECL  = 400, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T,
+         EXEC    = E:\LOGICIEL\CFT\FILUSR\SFFINPAR.BAT
+
+/* *********************************************************************** */
+CFTSEND  ID      = FINPAR,
+         FLRECL  = 400,
+         FCODE   = ASCII,
+		 FACTION = DELETE,
+         FRECFM  = V
+
+/* *********************************************************************** */
+CFTRECV  ID      = PARCELA,
+         FLRECL  = 229, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = V,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = INTERM,
+         FLRECL  = 185,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = OPERADOR,
+         FLRECL  = 47, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = PARLSG,
+         FLRECL  = 600, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = PRCLSG,
+         FLRECL  = 300,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+		 
+/* *********************************************************************** */
+CFTRECV  ID      = PRCLSG15,
+         FLRECL  = 300,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = PRCFIN,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = COMISSAO,
+         FLRECL  = 143, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CSS,
+         FLRECL  = 201,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = MGDMES,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = OCCDC,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = OCFP,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = OCLSG,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = PGCA511,
+         FLRECL  = 101, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = PGCA516,
+         FLRECL  = 52,  
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = PGFTMES,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = RETVENDA,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CDRDB,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CDNDB,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CMRDB,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CMNDB,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = DFAT,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = MFAT,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = MOD,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = RDC,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = SDFATDIA,
+         FACTION = DELETE,
+         FNAME   = 'E:\LOGICIEL\CFT\FILPUB\DFAT_&IDT.TXT',
+         EXEC    = 'E:\LOGICIEL\CFT\FILUSR\FTPWASYS.BAT',
+         FLRECL  = 401,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID       = DNACHDIS,
+         FNAME    = E:\EMVIA\O0055INTEGRALTRUST\OUTBOX\CD&IDT.TXT,
+         EXEC     = 'E:\LOGICIEL\CFT\SCRIPTS\RFDNACHDIS.BAT',
+         FTYPE    = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBCANNF,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 60, 
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMBLOQ,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 163,
+         FTYPE   = T         
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMBONU,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMCOMP,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMCONC,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 51,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMCOND,
+         FCODE   = ASCII,
+         FLRECL  = 539,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMCTMA,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 238,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMEMPR,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMFATN,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMFATR,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMFORP,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMMODE,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 54, 
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMMONT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 12,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMOCOR,
+         FCODE   = ASCII,
+         FLRECL  = 45,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMOPCI,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 48, 
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMRELC,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* ********************************************************************** */
+CFTSEND  ID      = BOBMVEIC,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 900, 
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMVERS,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 61,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = BOBMVIST,
+         FCODE   = ASCII,
+         FLRECL  = 74,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CDC,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = ADP,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = B
+
+/* *********************************************************************** */
+CFTSEND  ID      = BEMLSG,
+         FCODE   = ASCII,
+         FLRECL  = 250, 
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = COBFIN,
+         FCODE   = ASCII,
+         FLRECL  = 283,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = COBLSG,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 283,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CONLSG,
+         FCODE   = ASCII,
+         FLRECL  = 2670, 
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CTLSG,
+         FLRECL  = 629,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CTFIN,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CTLSGMES,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = FILIAIS,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 141,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = FINBEM,
+         FCODE   = ASCII,
+         FLRECL  = 250,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = FINCLIEN,
+         FCODE   = ASCII,
+         FLRECL  = 701,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = FINCON,
+         FCODE   = ASCII,
+         FLRECL  = 1181,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CONTRATO,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 609, 
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = PARCELA,
+         FCODE   = ASCII,
+         FRECFM  = V,
+         /*FLRECL  = 229,*/
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = INTERM,
+         FCODE   = ASCII,
+         FLRECL  = 185,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = OPERADOR,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 47,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = PARLSG,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 600, 
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = PRCLSG,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 300,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = PRCLSG15,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 300,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = PRCFIN,
+         FCODE   = ASCII,
+		 FACTION = DELETE,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+
+CFTSEND  ID      = COMISSAO,
+         FCODE   = ASCII,
+         FLRECL  = 143,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CSS,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 201,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = MGDMES,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = OCCDC,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = OCFP,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = OCLSG,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = PGCA511,
+         FCODE   = ASCII,
+         FRECFM  = V,
+         FLRECL  = 101,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = PGCA516,
+         FCODE   = ASCII,
+         FLRECL  = 52,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = PGFTMES,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = RETVENDA,
+         FCODE   = ASCII,
+         FRECFM  = V,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CDRDB,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CDNDB,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CMRDB,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = CMNDB,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = DFAT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = MFAT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = MOD,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = RDC,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTSEND  ID      = INTCANC,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FLRECL  = 60, 
+         FTYPE   = T
+		 
+/* *********************************************************************** */
+CFTSEND  ID      = INTVEIC,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T,
+         FLRECL  = 900,
+         FACTION = DELETE,
+         MODE    = REPLACE
+
+/* *********************************************************************** */
+CFTSEND  ID      = INTBLOQ,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T,
+         FLRECL  = 163,
+         FACTION = DELETE,
+         MODE    = REPLACE
+
+/* *********************************************************************** */
+CFTSEND  ID      = INTVIST,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T,
+         FLRECL  = 74,
+         FACTION = DELETE,
+         MODE    = REPLACE
+
+/* *********************************************************************** */
+CFTRECV  ID      = CRM02ABN,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\CRM02ABN.&IDT,
+         FLRECL  = 72,
+         FRECFM  = F,
+         FCODE   = ASCII,
+		 EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFCRM02ABN.BAT',
+         FTYPE   = T
+CFTSEND  ID      = CRM02ABN,
+         FLRECL  = 72,
+         FCODE   = ASCII,
+         MODE    = REPLACE,
+		 FACTION = DELETE,
+         FTYPE   = T
+
+/* *********************************************************************** */
+CFTRECV  ID      = CRM03ABN,
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\CRM03ABN.&IDT,
+         FLRECL  = 72,
+         FRECFM  = F,
+         FCODE   = ASCII,
+		 EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\RFCRM03ABN.BAT',
+         FTYPE   = T
+CFTSEND  ID      = CRM03ABN,
+         FLRECL  = 72,
+         FCODE   = ASCII,
+         MODE    = REPLACE,
+		 FACTION = DELETE,
+         FTYPE   = T
+
+/* *********************************************************************** */
+/* C-Project 56316 */
+CFTSEND  ID       = CTAGENTE,
+         FCODE    = ASCII,
+         FLRECL   = 250,
+         FTYPE    = T,
+         FRECFM   = F
+			
+CFTRECV  ID      = CTAGENTE,
+         FLRECL  = 250, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+			
+/* *********************************************************************** */
+/* C-Project 56317 */			
+CFTSEND  ID       = CTRELAGT,
+         FCODE    = ASCII,
+         FLRECL   = 180,
+         FTYPE    = T,
+         FRECFM   = F
+			
+CFTRECV  ID      = CTRELAGT,
+         FLRECL  = 180, 
+         FNAME   = E:\LOGICIEL\CFT\FILPUB\&PART.&IDF.&IDT,
+         FCODE   = ASCII,
+         FRECFM  = F,
+         FTYPE   = T
+			
+/* *********************************************************************** */
+
+/* *********************************************************************** */
+/* cProject 66617 - Pedido Joao Defarias                                    */
+
+
+CFTRECV         ID       = CDBRCI01,
+                FCODE    = ascii,
+                FNAME    = E:\LOGICIEL\CFT\FILPUB\RENAULT.BY.CDB.MOVIMENT.CNTBL,
+                FTYPE    = t,
+		EXEC    = 'E:\LOGICIEL\CFT\SCRIPTS\rfCDBRCI01.BAT'
+/* *********************************************************************** */
+/* Test de recepcion Jose Olivera **************************************** */
+
+CFTRECV         ID       = JOTEST,
+                fcode    = ascii,
+                fname    = E:\teste\JOTEST.txt,
+                exec     = E:\teste\rfJOTEST.bat
+
+CFTSEND         ID       = JOTEST2,
+                fcode    = ascii,
+                fname    = E:\LOGICIEL\CFT\TEST\Testdecopia\JOTEST.txt

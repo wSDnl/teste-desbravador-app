@@ -1,0 +1,170 @@
+/** ============================= */
+/**             GRID              */
+/** ============================= */
+
+.login {
+    transition: 1s;
+    opacity:0;
+    grid-area: login;
+    height:100vh;
+    color:#fff;
+    display: inline;
+    justify-content: center;
+    position: relative;
+    align-items: center;
+    padding: 50% 0px 0px 20%;
+    overflow-y: auto;
+}
+.logo {
+    transition: 2s;
+    opacity:0;
+    grid-area: logo;
+    height:100vh;
+    color:#fff;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    align-items: center;
+}
+
+.grid-container-login {
+    display: grid;
+    grid-template-areas:
+        'login login logo logo logo logo'
+        'login login logo logo logo logo'
+        'login login logo logo logo logo';
+    gap:0;
+    padding:0;
+    border:0;
+    overflow: hidden;
+    transition: 0.5s;
+    width: 100%; height: 100vh;
+    background-color: #CCC;
+    background-image: linear-gradient(to right, #CCC , #F5F5F5) 
+}
+
+@media (max-width:1080px){
+
+    .login {
+        grid-area: login;
+        height:100vh;
+        color:#fff;
+        position: relative;
+        padding:0;
+    }
+    .logo {
+        grid-area: logo;
+        height:400px;
+        color:#fff;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        position: relative;
+    }
+    .grid-container-login {
+        display: grid;
+        grid-template-areas:
+            'logo logo logo logo logo'
+            'logo logo logo logo logo'
+            'logo logo logo logo logo'
+            'login login login login login';
+        gap:0;
+        padding:0;
+        border:0;
+        overflow: hidden;
+
+        width: 100%; height: 100vh;
+        background-color: #CCC;
+        background-image: linear-gradient(to right, #CCC , #F5F5F5)
+    }
+
+    .grid-container-login > div {
+        overflow:hidden;
+    }
+
+}
+
+
+
+
+/** ============================= */
+/**    GRID CADASTRO DE USUARIOS  */
+/** ============================= */
+
+.loginCad {
+    grid-area: login;
+    height:100vh;
+    color:#fff;
+    display: inline;
+    justify-content: center;
+    position: relative;
+    align-items: center;
+    padding:10px 20% 50px 20%;
+    overflow-x: hidden;
+}
+.logoCad {
+    grid-area: logo;
+    height:10vh;
+    color:#fff;
+    display: flex;
+    justify-content: center;
+    position: relative;
+    align-items: center;
+}
+
+.grid-container-new-user {
+    display: grid;
+    grid-template-areas:
+        'login login login login login login'
+        'login login login login login login'
+        'login login login login login login';
+    gap:0;
+    padding:0;
+    border:0;
+    overflow-x: hidden;
+
+    width: 100%; height: 100vh;
+    background-color: #F5F5F5;
+    background-image: linear-gradient(to right, #F5F5F5 , #CCC)
+
+}
+
+@media (max-width:1080px){
+
+    .loginCad {
+        grid-area: login;
+        height:100vh;
+        color:#fff;
+        position: relative;
+        padding:0;
+    }
+    .logoCad {
+        grid-area: logo;
+        height:100px;
+        color:#fff;
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        position: relative;
+    }
+    .grid-container-new-user {
+        display: grid;
+        grid-template-areas:
+            'login login login login login'
+            'login login login login login'
+            'login login login login login';
+        gap:0;
+        padding:0;
+        border:0;
+        overflow: hidden;
+
+        width: 100%; height: 100vh;
+        background-color: #F5F5F5;
+        background-image: linear-gradient(to right, #F5F5F5 , #CCC)
+    }
+
+    .grid-container-new-user > div {
+        overflow-x: hidden;
+    }
+
+}

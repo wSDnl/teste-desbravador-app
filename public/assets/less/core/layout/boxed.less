@@ -1,0 +1,75 @@
+/* ------------------------------------------------------------------------------
+*
+*  # Boxed layout
+*
+*  Styles for main structure of content area in boxed layout
+*
+*  Version: 1.0
+*  Latest update: May 25, 2015
+*
+* ---------------------------------------------------------------------------- */
+
+
+// Boxed layout base
+.layout-boxed {
+
+    // Center main navbar2
+    .navbar2 .navbar2-boxed,
+    .page-header2-content,
+    .page-header2 .breadcrumb-boxed,
+    .page-container2,
+    .footer-boxed {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    // Boxed navbar2
+    .navbar2:not(.navbar2-component) {
+        @media (min-width: @grid-float-breakpoint) {
+            padding-left: 0;
+            padding-right: 0;
+
+            .navbar2-boxed {
+                position: relative;
+                padding-left: @navbar2-padding-horizontal;
+                padding-right: @navbar2-padding-horizontal;
+
+                .navbar2-header {
+                    margin-left: 0;
+                }
+
+                .navbar2-brand {
+                    padding-left: 0;
+                }
+
+                .mega-menu-wide .dropdown-content {
+                    left: @navbar2-padding-horizontal;
+                    right: @navbar2-padding-horizontal;
+                }
+            }
+        }
+    }
+
+    // Boxed breadcrumbs
+    .page-header2 .breadcrumb-boxed {
+        padding-left: @grid-gutter-width;
+        padding-right: @grid-gutter-width;
+    }
+
+    // Set widths on different screens
+    .page-container2,
+    .navbar2 .navbar2-boxed,
+    .page-header2 .breadcrumb-boxed,
+    .page-header2-content,
+    .footer-boxed {
+        @media (min-width: @screen-sm-min) {
+            width: @container-sm;
+        }
+        @media (min-width: @screen-md-min) {
+            width: @container-md;
+        }
+        @media (min-width: @screen-lg-min) {
+            width: @container-lg;
+        }
+    }
+}
