@@ -4,8 +4,5 @@ public/assets/GoJS
 Api
 /sessions
 database/config.js
-.env
 .vercel
-src/DataConfiguration/config.js
-
 .vercel
